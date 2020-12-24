@@ -23,26 +23,26 @@ const (
 	StatusNotExist = "Not exist"
 	StatusCreating = "Creating"
 	StatusDeleting = "Deleting"
-	StatusRunning = "Running"
+	StatusRunning  = "Running"
 )
 
 type Kind struct {
 	Status string `json:"status"`
 }
 
-// status: not-exist, creating, deleting, running,
-// /kind
-// /kind/create
-// /kind/delete
 func (h Handler) KindGet(c *gin.Context) {
-	c.JSON(http.StatusOK, h.kind)
+	statusCode := http.StatusNotFound
+	if h.kind.Status != StatusNotExist {
+		statusCode = http.StatusOK
+	}
+	c.JSON(statusCode, h.kind)
 }
 
 func (h *Handler) KindCreatePut(c *gin.Context) {
 	if h.kind.Status != StatusNotExist {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"message": "Couldn't create kind cluster since it is already exist",
-			"status": h.kind.Status,
+			"status":  h.kind.Status,
 		})
 		return
 	}
@@ -51,9 +51,9 @@ func (h *Handler) KindCreatePut(c *gin.Context) {
 
 	cmd := exec.Command("/usr/local/bin/kind",
 		"create",
-				"cluster",
-				"--config",
-				configPath)
+		"cluster",
+		"--config",
+		configPath)
 
 	go func() {
 		h.kind.Status = StatusCreating
@@ -66,7 +66,6 @@ func (h *Handler) KindCreatePut(c *gin.Context) {
 		if err != nil {
 			log.Println("error occurred during creating kind cluster: " + err.Error())
 			h.kind.Status = StatusNotExist
-
 		} else {
 			// TODO: Print elapsed time to create cluster
 			log.Println("kind cluster created!!")
@@ -76,7 +75,7 @@ func (h *Handler) KindCreatePut(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully triggered to creating kind cluster",
-		"status": h.kind.Status,
+		"status":  h.kind.Status,
 	})
 }
 
@@ -84,7 +83,7 @@ func (h *Handler) KindDestroyDelete(c *gin.Context) {
 	if h.kind.Status != StatusRunning {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"message": "Couldn't delete kind cluster since it does not exist",
-			"status": h.kind.Status,
+			"status":  h.kind.Status,
 		})
 		return
 	}
@@ -92,7 +91,7 @@ func (h *Handler) KindDestroyDelete(c *gin.Context) {
 	cmd := exec.Command("/usr/local/bin/kind",
 		"delete",
 		"cluster",
-		)
+	)
 
 	go func() {
 		h.kind.Status = StatusDeleting
@@ -106,7 +105,6 @@ func (h *Handler) KindDestroyDelete(c *gin.Context) {
 			log.Println("error occurred during deleting kind cluster: " + err.Error())
 			// FIXME: It doesn't seems to be appropriate status
 			h.kind.Status = StatusRunning
-
 		} else {
 			// TODO: Print elapsed time to delete cluster
 			log.Println("kind cluster deleted!!")
@@ -116,6 +114,6 @@ func (h *Handler) KindDestroyDelete(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Successfully triggered to deleting kind cluster",
-		"status": h.kind.Status,
+		"status":  h.kind.Status,
 	})
 }
