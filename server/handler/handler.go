@@ -3,6 +3,7 @@ package handler
 import (
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 
 	"github.com/gin-gonic/gin"
@@ -64,6 +65,8 @@ func (h *Handler) KindCreatePut(c *gin.Context) {
 		"cluster",
 		"--config",
 		configPath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
 
 	err := cmd.Start()
 	if err != nil {
@@ -110,6 +113,8 @@ func (h *Handler) KindDestroyDelete(c *gin.Context) {
 		"delete",
 		"cluster",
 	)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stdout
 
 	go func() {
 		h.kind.Status = StatusDeleting
