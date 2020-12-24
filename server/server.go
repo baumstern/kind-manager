@@ -11,7 +11,6 @@ type Server struct {
 	instance *gin.Engine
 }
 
-
 func New() Server {
 	r := gin.Default()
 

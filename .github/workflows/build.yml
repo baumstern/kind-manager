@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+  check:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: technote-space/get-diff-action@v3
+        with:
+          SUFFIX_FILTER: |
+            .go
+            .mod
+            .sum
+      - name: Check lint
+        uses: golangci/golangci-lint-action@v2.2.1
+        with:
+          version: v1.30
+        if: "env.GIT_DIFF != ''"
+      - name: Check gofmt
+        uses: Jerome1337/gofmt-action@v1.0.2
+        with:
+          gofmt-path: '.'
+      - name: Check goimports
+        uses: Jerome1337/goimports-action@v1.0.2
+        with:
+          goimports-path: '.'
+
+  push:
+    needs: check
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build container image
+        run: |
+          docker build -t ghcr.io/gurrpi/kind-manager:latest .
+      - name: Push container image
+        run: |
+          echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u gurrpi --password-stdin
+          docker push ghcr.io/gurrpi/kind-manager:latest
+
+
