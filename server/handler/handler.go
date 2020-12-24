@@ -48,6 +48,15 @@ func (h *Handler) KindCreatePut(c *gin.Context) {
 	}
 	configPath := c.PostForm("config_path")
 	log.Println("config path is: " + configPath)
+	if configPath == "" {
+		msg := "Failed to start to creating kind cluster: " + "You should provide kind config path"
+		log.Println(msg)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": msg,
+			"status":  h.kind.Status,
+		})
+		return
+	}
 
 	// FIXME: Do not hard code of binary path
 	cmd := exec.Command("/usr/local/bin/kind",
