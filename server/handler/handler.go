@@ -49,6 +49,7 @@ func (h *Handler) KindCreatePut(c *gin.Context) {
 	configPath := c.PostForm("config_path")
 	log.Println("config path is: " + configPath)
 
+	// FIXME: Do not hard code of binary path
 	cmd := exec.Command("/usr/local/bin/kind",
 		"create",
 		"cluster",
@@ -88,6 +89,7 @@ func (h *Handler) KindDestroyDelete(c *gin.Context) {
 		return
 	}
 
+	// FIXME: Do not hard code of binary path
 	cmd := exec.Command("/usr/local/bin/kind",
 		"delete",
 		"cluster",
