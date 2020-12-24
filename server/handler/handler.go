@@ -56,13 +56,20 @@ func (h *Handler) KindCreatePut(c *gin.Context) {
 		"--config",
 		configPath)
 
+	err := cmd.Start()
+	if err != nil {
+		h.kind.Status = StatusNotExist
+		msg := "Failed to start to creating kind cluster: " + err.Error()
+		log.Println(msg)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": msg,
+			"status":  h.kind.Status,
+		})
+		return
+	}
 	go func() {
 		h.kind.Status = StatusCreating
-		err := cmd.Start()
-		if err != nil {
-			log.Println("Failed to start to creating kind cluster: " + err.Error())
-			return
-		}
+
 		err = cmd.Wait()
 		if err != nil {
 			log.Println("error occurred during creating kind cluster: " + err.Error())
