@@ -16,7 +16,7 @@ func New() Server {
 
 	h := handler.New()
 	r.GET("/kind", h.KindGet)
-	r.PUT("/kind", h.KindCreatePut)
+	r.POST("/kind", h.KindCreatePost)
 	r.DELETE("/kind", h.KindDestroyDelete)
 	return Server{
 		instance: r,

@@ -39,7 +39,7 @@ func (h Handler) KindGet(c *gin.Context) {
 	c.JSON(statusCode, h.kind)
 }
 
-func (h *Handler) KindCreatePut(c *gin.Context) {
+func (h *Handler) KindCreatePost(c *gin.Context) {
 	if h.kind.Status != StatusNotExist {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"message": "Couldn't create kind cluster since it is already exist",
